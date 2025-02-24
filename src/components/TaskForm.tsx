@@ -1,12 +1,11 @@
-// src/components/TaskForm.tsx
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 
 const Form = styled.form`
   display: flex;
   gap: 10px;
   margin-bottom: 20px;
-  width: 1100px;
+  min-width: 700px;
 `
 
 const Input = styled.input`
@@ -29,17 +28,28 @@ const Button = styled.button`
   }
 `
 
-interface TaskFormProps {
-  addTask: (task: string) => void
-}
 
-const TaskForm: React.FC<TaskFormProps> = ({ addTask }) => {
-  const [task, setTask] = useState('')
+const TaskForm: React.FC<any> = ({
+  addTask,
+  editingTask,
+  saveTask
+}) => {
+  const [task, setTask] = useState<string>('')
+
+  useEffect(() => {
+    if (editingTask) {
+      setTask(editingTask.title)
+    }
+  }, [editingTask])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (task.trim()) {
-      addTask(task)
+      if (editingTask) {
+        saveTask({ ...editingTask, title: task })
+      } else {
+        addTask(task)
+      }
       setTask('')
     }
   }
@@ -50,9 +60,9 @@ const TaskForm: React.FC<TaskFormProps> = ({ addTask }) => {
         type='text'
         value={task}
         onChange={e => setTask(e.target.value)}
-        placeholder='Adicionar nova tarefa'
+        placeholder={editingTask ? 'Editar tarefa' : 'Adicionar nova tarefa'}
       />
-      <Button type='submit'>Adicionar</Button>
+      <Button type='submit'>{editingTask ? 'Salvar' : 'Adicionar'}</Button>
     </Form>
   )
 }
